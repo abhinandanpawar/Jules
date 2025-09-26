@@ -1,0 +1,50 @@
+{"comment": "Looks good to me!", "intent": "Approved"}
+{"comment": "LGTM", "intent": "Approved"}
+{"comment": "Approved", "intent": "Approved"}
+{"comment": "This is perfect, thank you! Go ahead and merge.", "intent": "Approved"}
+{"comment": "Ship it! 🚀", "intent": "Approved"}
+{"comment": "No notes from me, looks great.", "intent": "Approved"}
+{"comment": "Excellent work. Merging now.", "intent": "Approved"}
+{"comment": "Ready to go.", "intent": "Approved"}
+{"comment": "This resolves the issue perfectly.", "intent": "Approved"}
+{"comment": "I'm happy with this.", "intent": "Approved"}
+{"comment": "Can you please change the button color to blue?", "intent": "ChangesRequested"}
+{"comment": "There's a typo on line 42, in the variable name.", "intent": "ChangesRequested"}
+{"comment": "This doesn't seem to work on mobile. The layout breaks below 600px. Please fix.", "intent": "ChangesRequested"}
+{"comment": "I think we should refactor this into a separate utility function.", "intent": "ChangesRequested"}
+{"comment": "Requesting changes: the logic for calculating the total is incorrect. It should include tax.", "intent": "ChangesRequested"}
+{"comment": "Please add a unit test for this new function.", "intent": "ChangesRequested"}
+{"comment": "The performance here is a bit slow. Can we optimize this query?", "intent": "ChangesRequested"}
+{"comment": "Could you add some comments to explain what this block of code does?", "intent": "ChangesRequested"}
+{"comment": "This is a good start, but it's missing error handling for when the API call fails.", "intent": "ChangesRequested"}
+{"comment": "Let's rename this variable to be more descriptive.", "intent": "ChangesRequested"}
+{"comment": "The styling doesn't match the Figma mockups. Please adjust the padding.", "intent": "ChangesRequested"}
+{"comment": "This change introduces a security vulnerability. We need to sanitize the input here.", "intent": "ChangesRequested"}
+{"comment": "The accessibility is not great here. The color contrast is too low.", "intent": "ChangesRequested"}
+{"comment": "Please update the README with instructions for this new feature.", "intent": "ChangesRequested"}
+{"comment": "This PR is too large. Can you split it into smaller, more manageable PRs?", "intent": "ChangesRequested"}
+{"comment": "What do you think about adding a test for this edge case?", "intent": "Commented"}
+{"comment": "I'm not sure I understand this part of the logic.", "intent": "Commented"}
+{"comment": "Interesting approach. I hadn't considered doing it this way.", "intent": "Commented"}
+{"comment": "Just leaving a note here for future reference: we might want to revisit this when we upgrade the database.", "intent": "Commented"}
+{"comment": "Why did we choose to use this library instead of the other one?", "intent": "Commented"}
+{"comment": "This looks familiar. Did we write something similar in the other service?", "intent": "Commented"}
+{"comment": "How does this handle a null value for `user`?", "intent": "Commented"}
+{"comment": "This is a clever solution.", "intent": "Commented"}
+{"comment": "Just a question: will this impact the performance of the main dashboard?", "intent": "Commented"}
+{"comment": "FYI, I'll be testing this on the staging environment shortly.", "intent": "Commented"}
+{"comment": "Thanks for the quick turnaround on this!", "intent": "Commented"}
+{"comment": "This is a great improvement.", "intent": "Commented"}
+{"comment": "I've left a few minor suggestions, but this is good to go once they are addressed.", "intent": "ChangesRequested"}
+{"comment": "Looks great, just one small change needed.", "intent": "ChangesRequested"}
+{"comment": "I've approved this, but can you fix the typo before merging?", "intent": "ChangesRequested"}
+{"comment": "Love it! Approved.", "intent": "Approved"}
+{"comment": "This is exactly what I was looking for. Thank you!", "intent": "Approved"}
+{"comment": "This is a bit confusing. Can we schedule a quick call to discuss?", "intent": "Commented"}
+{"comment": "I'm wondering if there's a simpler way to achieve this.", "intent": "Commented"}
+{"comment": "This is a breaking change. We need to make sure we communicate this to the other teams.", "intent": "Commented"}
+{"comment": "The test coverage for this file has dropped. Please add more tests.", "intent": "ChangesRequested"}
+{"comment": "Perfect, no changes needed from my side.", "intent": "Approved"}
+{"comment": "This is a good first step, but it doesn't fully solve the problem.", "intent": "ChangesRequested"}
+{"comment": "I'll approve this for now, but we need to create a follow-up ticket to address the performance.", "intent": "Approved"}
+{"comment": "What's the status of this? Are we ready to merge?", "intent": "Commented"}
