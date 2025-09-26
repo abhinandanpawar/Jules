@@ -19,15 +19,14 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { templates } from '../lib/prompt-templates'; // Import the templates
 
 // --- TYPE DEFINITIONS ---
 interface Task {
   id: number;
   title: string;
   number: number;
-  repository: {
-    name: string;
-  };
+  repository: { name: string };
 }
 
 interface Column {
@@ -49,15 +48,7 @@ const initialColumns: Column[] = [
 // --- COMPONENTS ---
 
 const TaskCard = ({ task }: { task: Task }) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: task.id.toString(), data: { type: 'Task', task } });
-
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: task.id.toString(), data: { type: 'Task', task } });
   const style = { transform: CSS.Transform.toString(transform), transition };
 
   if (isDragging) {
@@ -89,9 +80,15 @@ const KanbanColumn = ({ column, tasks }: { column: Column; tasks: Task[] }) => {
 const NewTaskModal = ({ repos, onClose, onTaskCreated }: { repos: string[], onClose: () => void, onTaskCreated: (newTask: Task) => void }) => {
     const [title, setTitle] = useState('');
     const [repo, setRepo] = useState(repos[0] || '');
-    const [body, setBody] = useState('');
+    const [taskType, setTaskType] = useState('general');
+    const [body, setBody] = useState(templates.general.template);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        // Update the body with the template when the task type changes
+        setBody(templates[taskType]?.template || '');
+    }, [taskType]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -108,12 +105,7 @@ const NewTaskModal = ({ repos, onClose, onTaskCreated }: { repos: string[], onCl
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ title, repo, body }),
             });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to create issue.');
-            }
-
+            if (!response.ok) throw new Error((await response.json()).error || 'Failed to create issue.');
             const newTask: Task = await response.json();
             onTaskCreated(newTask);
             onClose();
@@ -129,19 +121,29 @@ const NewTaskModal = ({ repos, onClose, onTaskCreated }: { repos: string[], onCl
             <div className="bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-lg">
                 <h2 className="text-2xl font-bold mb-4">Create New Task</h2>
                 <form onSubmit={handleSubmit}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label htmlFor="repo" className="block text-gray-300 mb-2">Repository</label>
+                            <select id="repo" value={repo} onChange={e => setRepo(e.target.value)} className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                                {repos.map(r => <option key={r} value={r}>{r}</option>)}
+                            </select>
+                        </div>
+                        <div>
+                            <label htmlFor="taskType" className="block text-gray-300 mb-2">Task Type</label>
+                            <select id="taskType" value={taskType} onChange={e => setTaskType(e.target.value)} className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                {Object.entries(templates).map(([key, { name }]) => (
+                                    <option key={key} value={key}>{name}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
                     <div className="mb-4">
                         <label htmlFor="title" className="block text-gray-300 mb-2">Title</label>
                         <input type="text" id="title" value={title} onChange={e => setTitle(e.target.value)} className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required />
                     </div>
-                    <div className="mb-4">
-                        <label htmlFor="repo" className="block text-gray-300 mb-2">Repository</label>
-                        <select id="repo" value={repo} onChange={e => setRepo(e.target.value)} className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
-                            {repos.map(r => <option key={r} value={r}>{r}</option>)}
-                        </select>
-                    </div>
                     <div className="mb-6">
-                        <label htmlFor="body" className="block text-gray-300 mb-2">Description (Optional)</label>
-                        <textarea id="body" value={body} onChange={e => setBody(e.target.value)} rows={4} className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                        <label htmlFor="body" className="block text-gray-300 mb-2">Description</label>
+                        <textarea id="body" value={body} onChange={e => setBody(e.target.value)} rows={10} className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono text-sm"></textarea>
                     </div>
                     {error && <p className="text-red-400 mb-4">{error}</p>}
                     <div className="flex justify-end gap-4">
@@ -169,33 +171,16 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch both issues and config in parallel for faster loading
-        const [issuesResponse, configResponse] = await Promise.all([
-          fetch('/api/issues'),
-          fetch('/api/config')
-        ]);
-
-        if (!issuesResponse.ok) {
-          throw new Error((await issuesResponse.json()).error || 'Failed to fetch issues.');
-        }
-        if (!configResponse.ok) {
-          throw new Error((await configResponse.json()).error || 'Failed to fetch config.');
-        }
-
+        const [issuesResponse, configResponse] = await Promise.all([ fetch('/api/issues'), fetch('/api/config') ]);
+        if (!issuesResponse.ok) throw new Error((await issuesResponse.json()).error || 'Failed to fetch issues.');
+        if (!configResponse.ok) throw new Error((await configResponse.json()).error || 'Failed to fetch config.');
         const issues: Task[] = await issuesResponse.json();
         const config: { repos: string[] } = await configResponse.json();
-
         setTasks(issues);
         setConfiguredRepos(config.repos.sort());
-
         const initialMapping = issues.reduce((acc, task) => ({...acc, [task.id.toString()]: 'backlog'}), {});
         setTaskColumnMapping(initialMapping);
-
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
+      } catch (err: any) { setError(err.message); } finally { setIsLoading(false); }
     };
     fetchData();
   }, []);
@@ -218,7 +203,6 @@ export default function Home() {
     const activeId = active.id.toString();
     const overId = over.id.toString();
     if (active.data.current?.type !== 'Task') return;
-
     const overColumnId = over.data.current?.type === 'Column' ? overId : taskColumnMapping[overId];
     if (overColumnId) {
       setTaskColumnMapping(prev => ({ ...prev, [activeId]: overColumnId }));

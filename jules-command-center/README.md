@@ -8,7 +8,7 @@ The Jules Command Center is a standalone web application designed to be a unifie
 
 - **Unified Dashboard:** View issues from multiple GitHub repositories on a single Kanban board.
 - **Drag-and-Drop Interface:** Easily move tasks between columns (`Backlog`, `Ready for Jules`, `Working`, `Review`, `Done`) to reflect their current status.
-- **Direct Task Creation:** Create new GitHub issues in any of your connected repositories directly from the application's UI.
+- **Prompt-Assisted Task Creation:** Create new GitHub issues using predefined templates for 'Bug Fix', 'New Feature', and more, ensuring your requests are perfectly structured.
 - **Real-time Data:** Fetches live issue data directly from the GitHub API.
 - **Configurable:** Easily configure which repositories you want to manage.
 
@@ -71,4 +71,8 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 - **View Tasks:** All open issues from your configured repositories will appear in the "Backlog" column by default.
 - **Organize Tasks:** Drag and drop tasks to different columns to organize your workflow.
-- **Create a New Task:** Click the "New Task" button in the header. A modal will appear where you can enter the task title, select the repository, and add an optional description. Clicking "Create Task" will create a new issue in the selected GitHub repository.
+- **Create a New Task:** Click the "New Task" button in the header. A modal will appear where you can:
+    1.  Select the **Repository** for the new task.
+    2.  Choose a **Task Type** (e.g., 'Bug Fix', 'New Feature'). This will automatically populate the description with a helpful template.
+    3.  Fill in the **Title** and complete the templated **Description**.
+    4.  Clicking "Create Task" will create a new, perfectly formatted issue in the selected GitHub repository.

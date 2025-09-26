@@ -20,7 +20,7 @@ This initial version of the Jules Command Center is a powerful, fully functional
 -   **Unified Multi-Repo Dashboard:** The board fetches and displays all open issues from a list of repositories that you configure.
 -   **Live GitHub Data:** All task information is pulled directly from the GitHub API, ensuring the data is always up-to-date.
 -   **Interactive Drag-and-Drop:** You can organize tasks across columns (`Backlog`, `Ready for Jules`, etc.) to manage the workflow visually.
--   **Direct Issue Creation:** A "New Task" modal allows you to create new GitHub issues in any of your configured repositories without ever leaving the dashboard.
+-   **Prompt-Assisted Task Creation:** The "New Task" modal provides structured templates for different task types (e.g., Bug Fix, New Feature), guiding you to create perfectly formatted requests that I can understand better.
 -   **Secure Authentication:** The application uses a GitHub Personal Access Token (PAT) for secure, read/write access to your repositories.
 -   **Comprehensive Documentation:** A detailed `README.md` provides clear, step-by-step instructions for setup and usage.
 
