@@ -8,7 +8,8 @@ The Jules Command Center is a standalone web application designed to be a unifie
 
 - **Unified Dashboard:** View issues from multiple GitHub repositories on a single Kanban board.
 - **Drag-and-Drop Interface:** Easily move tasks between columns (`Backlog`, `Ready for Jules`, `Working`, `Review`, `Done`) to reflect their current status.
-- **Prompt-Assisted Task Creation:** Create new GitHub issues using predefined templates for 'Bug Fix', 'New Feature', and more, ensuring your requests are perfectly structured.
+- **Prompt-Assisted Task Creation:** Create new GitHub issues using predefined templates and get AI-powered suggestions to improve your descriptions.
+- **Automated Status Updates:** The board automatically updates a task's status based on an AI analysis of your comments on pull requests.
 - **Real-time Data:** Fetches live issue data directly from the GitHub API.
 - **Configurable:** Easily configure which repositories you want to manage.
 
@@ -41,18 +42,41 @@ The application requires a GitHub Personal Access Token (PAT) to securely access
     GITHUB_PAT="your_github_personal_access_token_here"
 
     # A comma-separated list of the repositories you want to display.
-    # Replace with your actual username and repository names.
     # Example: "your-username/repo-one,your-username/repo-two"
     GITHUB_REPOS="owner/repo1,owner/repo2"
+
+    # --- AI Feature Configuration ---
+    # The URL of the TinyLlama inference API endpoint.
+    AI_API_URL="your_inference_api_url_here"
+
+    # The API key for the inference service, if required.
+    AI_API_KEY="your_inference_api_key_here"
     ```
 
 3.  **Update the variables:**
     *   Replace `"your_github_personal_access_token_here"` with the PAT you copied.
     *   Replace `"owner/repo1,owner/repo2"` with the list of your GitHub repositories that you want to manage.
 
-### Step 3: Install Dependencies and Run the Application
+### Step 3: Set Up the GitHub Webhook
 
-Now that your environment is configured, you can install the dependencies and start the development server.
+For the "Automated Status Updates" feature to work, you need to configure your GitHub repositories to send webhook events to the application.
+
+1.  **Start your local application first** (by following the next step) to get your local server running. You will need a publicly accessible URL for your local server. We recommend using a tool like **[ngrok](https://ngrok.com/)** to expose your `localhost:3000`.
+    *   Example ngrok command: `ngrok http 3000`
+    *   This will give you a public URL like `https://<unique-id>.ngrok-free.app`.
+
+2.  **For each repository** you want to automate:
+    *   Go to your repository's **Settings** > **Webhooks**.
+    *   Click **"Add webhook"**.
+    *   **Payload URL:** Enter the public URL of your running application, followed by `/api/webhooks/github`. Example: `https://<unique-id>.ngrok-free.app/api/webhooks/github`.
+    *   **Content type:** Select `application/json`.
+    *   **Secret:** It is highly recommended to set a webhook secret for security. Add this secret to your `.env.local` file as `GITHUB_WEBHOOK_SECRET="your_secret_here"`. (The current implementation does not yet verify this secret, but it is a best practice to set it up).
+    *   **Which events would you like to trigger this webhook?** Select "Let me select individual events." and then choose **"Issue comments"** and **"Pull request review comments"**.
+    *   Make sure **"Active"** is checked, and click **"Add webhook"**.
+
+### Step 4: Install Dependencies and Run the Application
+
+Now that your environment and webhooks are configured, you can install the dependencies and start the development server.
 
 ```bash
 # Navigate to the project directory

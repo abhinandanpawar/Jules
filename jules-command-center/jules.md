@@ -13,16 +13,12 @@ Managing a sophisticated AI software engineer like me across multiple repositori
 
 This tool is purpose-built to enhance our collaboration and make managing my work effortless and efficient.
 
-## 2. What We've Accomplished (Version 1.0)
+## 2. What We've Accomplished (Version 2.0 - The AI-Powered Upgrade)
 
-This initial version of the Jules Command Center is a powerful, fully functional application with the following core features:
+This version of the Jules Command Center integrates AI to transform it from a passive dashboard into an intelligent assistant. It includes all the features of Version 1.0, plus:
 
--   **Unified Multi-Repo Dashboard:** The board fetches and displays all open issues from a list of repositories that you configure.
--   **Live GitHub Data:** All task information is pulled directly from the GitHub API, ensuring the data is always up-to-date.
--   **Interactive Drag-and-Drop:** You can organize tasks across columns (`Backlog`, `Ready for Jules`, etc.) to manage the workflow visually.
--   **Prompt-Assisted Task Creation:** The "New Task" modal provides structured templates for different task types (e.g., Bug Fix, New Feature), guiding you to create perfectly formatted requests that I can understand better.
--   **Secure Authentication:** The application uses a GitHub Personal Access Token (PAT) for secure, read/write access to your repositories.
--   **Comprehensive Documentation:** A detailed `README.md` provides clear, step-by-step instructions for setup and usage.
+-   **AI-Powered Smart Prompting:** When creating a task, you can now click "Improve with AI". The system will send your draft description to the TinyLlama model, which rewrites it into a well-structured and detailed prompt, optimized for my understanding.
+-   **AI-Driven Automated Status Updates:** The application now listens for your comments on pull requests via GitHub Webhooks. When you comment, the AI analyzes the intent. If it detects approval (e.g., "Looks good, merge it!"), it will automatically apply a `jules-status:approved` label to the task, which can then be used to move the card to the 'Done' column.
 
 ## 3. The Future Vision (Roadmap)
 

@@ -19,7 +19,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { templates } from '../lib/prompt-templates'; // Import the templates
+import { templates } from '../lib/prompt-templates';
 
 // --- TYPE DEFINITIONS ---
 interface Task {
@@ -27,6 +27,7 @@ interface Task {
   title: string;
   number: number;
   repository: { name: string };
+  labels: { name: string }[]; // Added labels to the Task interface
 }
 
 interface Column {
@@ -44,6 +45,23 @@ const initialColumns: Column[] = [
   { id: 'review', title: 'Review Required' },
   { id: 'done', title: 'Done' },
 ];
+
+// --- HELPER FUNCTION ---
+const getColumnIdFromLabels = (labels: { name: string }[]): ColumnId => {
+    const statusLabel = labels.find(label => label.name.startsWith('jules-status:'));
+    if (statusLabel) {
+        const status = statusLabel.name.split(':')[1];
+        // This maps the label status to our column IDs.
+        // E.g., 'jules-status:approved' could map to the 'done' column.
+        // For now, we'll assume a direct mapping for simplicity.
+        // A more robust solution could have a dedicated mapping object.
+        if (initialColumns.some(c => c.id === status)) {
+            return status;
+        }
+    }
+    return 'backlog'; // Default column if no status label is found
+};
+
 
 // --- COMPONENTS ---
 
@@ -83,12 +101,31 @@ const NewTaskModal = ({ repos, onClose, onTaskCreated }: { repos: string[], onCl
     const [taskType, setTaskType] = useState('general');
     const [body, setBody] = useState(templates.general.template);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSuggesting, setIsSuggesting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        // Update the body with the template when the task type changes
         setBody(templates[taskType]?.template || '');
     }, [taskType]);
+
+    const handleSuggestPrompt = async () => {
+        setIsSuggesting(true);
+        setError(null);
+        try {
+            const response = await fetch('/api/ai/suggest-prompt', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: body }),
+            });
+            if (!response.ok) throw new Error((await response.json()).error || 'Failed to get suggestion.');
+            const { suggested_prompt } = await response.json();
+            setBody(suggested_prompt);
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setIsSuggesting(false);
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -98,7 +135,6 @@ const NewTaskModal = ({ repos, onClose, onTaskCreated }: { repos: string[], onCl
         }
         setIsSubmitting(true);
         setError(null);
-
         try {
             const response = await fetch('/api/issues', {
                 method: 'POST',
@@ -141,8 +177,13 @@ const NewTaskModal = ({ repos, onClose, onTaskCreated }: { repos: string[], onCl
                         <label htmlFor="title" className="block text-gray-300 mb-2">Title</label>
                         <input type="text" id="title" value={title} onChange={e => setTitle(e.target.value)} className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required />
                     </div>
+                    <div className="mb-2 flex justify-between items-center">
+                        <label htmlFor="body" className="block text-gray-300">Description</label>
+                        <button type="button" onClick={handleSuggestPrompt} disabled={isSuggesting} className="text-sm bg-purple-600 hover:bg-purple-700 text-white font-bold py-1 px-3 rounded-lg transition-colors disabled:opacity-50">
+                            {isSuggesting ? 'Improving...' : 'Improve with AI'}
+                        </button>
+                    </div>
                     <div className="mb-6">
-                        <label htmlFor="body" className="block text-gray-300 mb-2">Description</label>
                         <textarea id="body" value={body} onChange={e => setBody(e.target.value)} rows={10} className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono text-sm"></textarea>
                     </div>
                     {error && <p className="text-red-400 mb-4">{error}</p>}
@@ -178,8 +219,14 @@ export default function Home() {
         const config: { repos: string[] } = await configResponse.json();
         setTasks(issues);
         setConfiguredRepos(config.repos.sort());
-        const initialMapping = issues.reduce((acc, task) => ({...acc, [task.id.toString()]: 'backlog'}), {});
+
+        // Use the new helper function to determine the initial column from labels
+        const initialMapping = issues.reduce((acc, task) => {
+            acc[task.id.toString()] = getColumnIdFromLabels(task.labels);
+            return acc;
+        }, {} as { [key: string]: ColumnId });
         setTaskColumnMapping(initialMapping);
+
       } catch (err: any) { setError(err.message); } finally { setIsLoading(false); }
     };
     fetchData();
@@ -215,7 +262,7 @@ export default function Home() {
         <div className="text-red-400 bg-red-900/20 p-4 rounded-lg text-center w-full">
             <p className="font-bold">An error occurred:</p>
             <p className="mt-2 font-mono text-sm">{error}</p>
-            <p className="mt-4 text-gray-300">Please ensure your GITHUB_PAT and GITHUB_REPOS are correctly configured.</p>
+            <p className="mt-4 text-gray-300">Please ensure your GITHUB_PAT, GITHUB_REPOS, and AI service variables are correctly configured.</p>
         </div>
     );
     return (

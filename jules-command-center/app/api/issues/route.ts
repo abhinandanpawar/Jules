@@ -14,6 +14,9 @@ interface GitHubIssue {
   user: {
     login: string;
   };
+  labels: {
+    name: string;
+  }[];
 }
 
 /**
