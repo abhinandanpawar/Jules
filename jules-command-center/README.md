@@ -51,6 +51,9 @@ The application requires a GitHub Personal Access Token (PAT) to securely access
 
     # The API key for the inference service, if required.
     AI_API_KEY="your_inference_api_key_here"
+
+    # A secret for verifying GitHub webhook payloads.
+    GITHUB_WEBHOOK_SECRET="your_secret_here"
     ```
 
 3.  **Update the variables:**
@@ -90,6 +93,10 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result. The application should now load and display the open issues from the repositories you configured.
+
+### AI Model Training
+
+This project includes scripts to fine-tune the AI models that power features like smart prompting and automated status updates. For a complete guide on how to set up the environment and run the training scripts, please see the **[Training & Deployment Guide](./training/TRAINING.md)**.
 
 ## How to Use
 

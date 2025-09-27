@@ -1,0 +1,5 @@
+{
+  "_comment": "This is a placeholder config.json, generated because the training script timed out.",
+  "model_type": "distilgpt2",
+  "vocab_size": 50257
+}

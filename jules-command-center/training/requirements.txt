@@ -6,8 +6,9 @@ torch
 
 # Hugging Face libraries for models, datasets, and training
 datasets
-transformers
+transformers>=4.37.0
 accelerate
+tiktoken
 
 # Recommended for efficient training on modern hardware
 bitsandbytes
