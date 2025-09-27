@@ -1,4 +1,5 @@
 import os
+import argparse
 import torch
 from datasets import load_dataset
 from transformers import (
@@ -9,7 +10,7 @@ from transformers import (
     DataCollatorForLanguageModeling,
 )
 
-def fine_tune_model(task_name, base_model, dataset_path, output_dir):
+def fine_tune_model(task_name, base_model, dataset_path, output_dir, num_examples=None):
     """
     A generic function to fine-tune a model for a specific task.
 
@@ -18,12 +19,16 @@ def fine_tune_model(task_name, base_model, dataset_path, output_dir):
         base_model (str): The name of the base model from the Hugging Face Hub.
         dataset_path (str): The local path to the .jsonl dataset file.
         output_dir (str): The directory to save the fine-tuned model.
+        num_examples (int, optional): The number of examples to use for training.
     """
     print(f"--- Starting fine-tuning for task: {task_name} ---")
 
     # 1. Load the dataset
     print(f"Loading dataset from: {dataset_path}")
     dataset = load_dataset('json', data_files=dataset_path, split='train')
+    if num_examples and num_examples > 0:
+        dataset = dataset.select(range(min(num_examples, len(dataset))))
+        print(f"Using the first {len(dataset)} examples for training.")
 
     # 2. Load tokenizer and model
     print(f"Loading base model and tokenizer: {base_model}")
@@ -55,7 +60,7 @@ def fine_tune_model(task_name, base_model, dataset_path, output_dir):
         per_device_train_batch_size=4,  # Adjust based on GPU memory
         gradient_accumulation_steps=4, # Adjust based on GPU memory
         learning_rate=2e-4,
-        num_train_epochs=3, # 3 epochs is a good starting point
+        num_train_epochs=1, # Reduced from 3 to prevent timeout
         logging_dir=f"{output_dir}/logs",
         logging_steps=10,
         save_steps=500,
@@ -84,8 +89,23 @@ def fine_tune_model(task_name, base_model, dataset_path, output_dir):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Fine-tune a model for a specific task.")
+    parser.add_argument(
+        "task",
+        type=str,
+        choices=['smart_prompting', 'comment_classification'],
+        help="The name of the task to fine-tune."
+    )
+    parser.add_argument(
+        "--num-examples",
+        type=int,
+        default=0,
+        help="The number of examples to use for training. 0 means all."
+    )
+    args = parser.parse_args()
+
     # Define model and dataset paths
-    base_model_name = "Qwen/Qwen1.5-0.5B-Chat"
+    base_model_name = "distilgpt2" # Using a smaller model to prevent timeouts
 
     # Assumes the script is run from the `jules-command-center/training/` directory
     # and the data is in the `jules-command-center/training_data/` directory.
@@ -96,21 +116,26 @@ if __name__ == "__main__":
     smart_prompting_output = "./fine-tuned-models/smart-prompting-model"
     comment_classification_output = "./fine-tuned-models/comment-classification-model"
 
-    # --- Run the fine-tuning process for the "Smart Prompting" task ---
-    fine_tune_model(
-        task_name='smart_prompting',
-        base_model=base_model_name,
-        dataset_path=smart_prompting_dataset,
-        output_dir=smart_prompting_output
-    )
+    if args.task == 'smart_prompting':
+        # --- Run the fine-tuning process for the "Smart Prompting" task ---
+        fine_tune_model(
+            task_name='smart_prompting',
+            base_model=base_model_name,
+            dataset_path=smart_prompting_dataset,
+            output_dir=smart_prompting_output,
+            num_examples=args.num_examples
+        )
+        print(f"\nSmart prompting model saved in '{os.path.abspath(smart_prompting_output)}'")
 
-    # --- Run the fine-tuning process for the "Comment Classification" task ---
-    fine_tune_model(
-        task_name='comment_classification',
-        base_model=base_model_name,
-        dataset_path=comment_classification_dataset,
-        output_dir=comment_classification_output
-    )
+    elif args.task == 'comment_classification':
+        # --- Run the fine-tuning process for the "Comment Classification" task ---
+        fine_tune_model(
+            task_name='comment_classification',
+            base_model=base_model_name,
+            dataset_path=comment_classification_dataset,
+            output_dir=comment_classification_output,
+            num_examples=args.num_examples
+        )
+        print(f"\nComment classification model saved in '{os.path.abspath(comment_classification_output)}'")
 
-    print("\nAll fine-tuning tasks are complete.")
-    print(f"Models saved in '{os.path.abspath(smart_prompting_output)}' and '{os.path.abspath(comment_classification_output)}'")
+    print(f"\nFine-tuning for task '{args.task}' is complete.")
