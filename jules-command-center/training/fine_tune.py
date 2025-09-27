@@ -85,7 +85,7 @@ def fine_tune_model(task_name, base_model, dataset_path, output_dir):
 
 if __name__ == "__main__":
     # Define model and dataset paths
-    base_model_name = "PY007/TinyLlama-1.1B-Chat-v0.2"
+    base_model_name = "Qwen/Qwen1.5-0.5B-Chat"
 
     # Assumes the script is run from the `jules-command-center/training/` directory
     # and the data is in the `jules-command-center/training_data/` directory.
