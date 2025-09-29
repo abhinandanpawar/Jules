@@ -73,7 +73,7 @@ For the "Automated Status Updates" feature to work, you need to configure your G
     *   Click **"Add webhook"**.
     *   **Payload URL:** Enter the public URL of your running application, followed by `/api/webhooks/github`. Example: `https://<unique-id>.ngrok-free.app/api/webhooks/github`.
     *   **Content type:** Select `application/json`.
-    *   **Secret:** It is highly recommended to set a webhook secret for security. Add this secret to your `.env.local` file as `GITHUB_WEBHOOK_SECRET="your_secret_here"`. (The current implementation does not yet verify this secret, but it is a best practice to set it up).
+    *   **Secret:** You must set a webhook secret for security. Generate a secure, random string and add it to your `.env.local` file as `GITHUB_WEBHOOK_SECRET="your_secret_here"`. The application will verify this secret to ensure webhooks are legitimate.
     *   **Which events would you like to trigger this webhook?** Select "Let me select individual events." and then choose **"Issue comments"** and **"Pull request review comments"**.
     *   Make sure **"Active"** is checked, and click **"Add webhook"**.
 
