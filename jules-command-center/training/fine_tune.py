@@ -70,10 +70,15 @@ def fine_tune_model(task_name, base_model, dataset_path, output_dir, num_example
         labels = np.where(labels != -100, labels, tokenizer.pad_token_id)
         decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
 
-        # Custom logic to extract the predicted intent from the response
-        # This is a simplified example; a more robust solution would use regex
-        extracted_preds = [pred.split("### Response:")[-1].strip() for pred in decoded_preds]
-        extracted_labels = [label.split("### Response:")[-1].strip() for label in decoded_labels]
+        def extract_intent(text):
+            # Find the response part, handle case-insensitivity, and clean up
+            response_part = text.split("### Response:")[-1]
+            # Be robust to variations like "Approved.", " approved ", etc.
+            return response_part.strip().lower().rstrip('.!')
+
+        # Extract the single word intent
+        extracted_preds = [extract_intent(pred) for pred in decoded_preds]
+        extracted_labels = [extract_intent(label) for label in decoded_labels]
 
         # For smart_prompting, accuracy is not a meaningful metric
         if task_name == 'smart_prompting':
@@ -100,6 +105,8 @@ def fine_tune_model(task_name, base_model, dataset_path, output_dir, num_example
         model=model,
         args=training_args,
         train_dataset=tokenized_train_dataset,
+        eval_dataset=tokenized_eval_dataset,
+        compute_metrics=compute_metrics,
         data_collator=DataCollatorForLanguageModeling(tokenizer, mlm=False),
     )
 
