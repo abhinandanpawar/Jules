@@ -11,6 +11,7 @@ interface GitHubIssue {
   state: string;
   assignee: any;
   created_at: string;
+  closed_at: string | null;
   user: {
     login: string;
   };
@@ -21,9 +22,14 @@ interface GitHubIssue {
 
 /**
  * GET /api/issues
- * Fetches all open issues from the repositories specified in the GITHUB_REPOS environment variable.
+ * Fetches issues from the repositories specified in the GITHUB_REPOS environment variable.
+ * It can fetch 'open', 'closed', or 'all' issues based on the 'state' query parameter.
+ * Defaults to 'open' if no state is provided.
  */
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const state = searchParams.get('state') || 'open'; // Default to 'open'
+
   const GITHUB_PAT = process.env.GITHUB_PAT;
   const GITHUB_REPOS = process.env.GITHUB_REPOS;
 
@@ -39,7 +45,7 @@ export async function GET() {
 
   try {
     const fetchPromises = repoList.map(async (repo) => {
-      const url = `https://api.github.com/repos/${repo}/issues?state=open`;
+      const url = `https://api.github.com/repos/${repo}/issues?state=${state}&per_page=100`;
       const response = await fetch(url, {
         headers: {
           Authorization: `Bearer ${GITHUB_PAT}`,
