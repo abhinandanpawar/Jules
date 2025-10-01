@@ -107,3 +107,19 @@ This project includes scripts to fine-tune the AI models that power features lik
     2.  Choose a **Task Type** (e.g., 'Bug Fix', 'New Feature'). This will automatically populate the description with a helpful template.
     3.  Fill in the **Title** and complete the templated **Description**.
     4.  Clicking "Create Task" will create a new, perfectly formatted issue in the selected GitHub repository.
+
+## Screenshots
+
+> **Note:** Due to persistent technical issues in the development environment, we are currently unable to generate updated screenshots. This section will be updated with images of the application's features as soon as the environment is stabilized.
+
+**Kanban Board**
+*A unified view of all tasks across your repositories.*
+![Kanban Board Placeholder](https://user-images.githubusercontent.com/12345/67890.png) <!-- Placeholder -->
+
+**Analytics Dashboard**
+*Gain insights into project velocity and task distribution.*
+![Analytics Dashboard Placeholder](https://user-images.githubusercontent.com/12345/67890.png) <!-- Placeholder -->
+
+## Keywords
+
+`Kanban Board`, `Project Management`, `AI Assistant`, `Software Development`, `GitHub Issues`, `Task Management`, `Developer Tool`, `Next.js`, `React`, `TypeScript`, `AI-Powered`, `Workflow Automation`, `Jules`, `Command Center`, `Analytics`
