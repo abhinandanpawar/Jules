@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
+import * as crypto from 'crypto';
 
 // --- CONSTANTS ---
 const GITHUB_PAT = process.env.GITHUB_PAT;
+const GITHUB_WEBHOOK_SECRET = process.env.GITHUB_WEBHOOK_SECRET;
 const AI_API_URL = process.env.AI_API_URL;
 const AI_API_KEY = process.env.AI_API_KEY;
 
@@ -93,11 +95,29 @@ async function setIssueStatus(repoFullName: string, issueNumber: number, status:
 
 // --- MAIN WEBHOOK HANDLER ---
 export async function POST(request: Request) {
-  // In a real app, you MUST verify the webhook signature.
-  // For this project, we will skip it for simplicity.
-
   try {
-    const payload = await request.json();
+    const signature = request.headers.get('x-hub-signature-256');
+    const rawBody = await request.text(); // Get raw body for signature verification
+
+    if (GITHUB_WEBHOOK_SECRET) {
+      if (!signature) {
+        return NextResponse.json({ error: 'Signature not found.' }, { status: 401 });
+      }
+
+      const expectedSignature = `sha256=${crypto
+        .createHmac('sha256', GITHUB_WEBHOOK_SECRET)
+        .update(rawBody)
+        .digest('hex')}`;
+
+      if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
+        return NextResponse.json({ error: 'Invalid signature.' }, { status: 401 });
+      }
+    } else {
+        // In a real production app, you should throw an error if the secret is not configured.
+        console.warn("GITHUB_WEBHOOK_SECRET is not set. Skipping signature verification. This is insecure.");
+    }
+
+    const payload = JSON.parse(rawBody); // Use the body we already read
     const eventType = request.headers.get('x-github-event');
     const { action, repository, issue, pull_request, comment } = payload;
     const repoFullName = repository?.full_name;

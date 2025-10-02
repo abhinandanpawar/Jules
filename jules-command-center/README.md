@@ -73,7 +73,7 @@ For the "Automated Status Updates" feature to work, you need to configure your G
     *   Click **"Add webhook"**.
     *   **Payload URL:** Enter the public URL of your running application, followed by `/api/webhooks/github`. Example: `https://<unique-id>.ngrok-free.app/api/webhooks/github`.
     *   **Content type:** Select `application/json`.
-    *   **Secret:** It is highly recommended to set a webhook secret for security. Add this secret to your `.env.local` file as `GITHUB_WEBHOOK_SECRET="your_secret_here"`. (The current implementation does not yet verify this secret, but it is a best practice to set it up).
+    *   **Secret:** You must set a webhook secret for security. Generate a secure, random string and add it to your `.env.local` file as `GITHUB_WEBHOOK_SECRET="your_secret_here"`. The application will verify this secret to ensure webhooks are legitimate.
     *   **Which events would you like to trigger this webhook?** Select "Let me select individual events." and then choose **"Issue comments"** and **"Pull request review comments"**.
     *   Make sure **"Active"** is checked, and click **"Add webhook"**.
 
@@ -107,3 +107,19 @@ This project includes scripts to fine-tune the AI models that power features lik
     2.  Choose a **Task Type** (e.g., 'Bug Fix', 'New Feature'). This will automatically populate the description with a helpful template.
     3.  Fill in the **Title** and complete the templated **Description**.
     4.  Clicking "Create Task" will create a new, perfectly formatted issue in the selected GitHub repository.
+
+## Screenshots
+
+> **Note:** Due to persistent technical issues in the development environment, we are currently unable to generate updated screenshots. This section will be updated with images of the application's features as soon as the environment is stabilized.
+
+**Kanban Board**
+*A unified view of all tasks across your repositories.*
+![Kanban Board Placeholder](https://user-images.githubusercontent.com/12345/67890.png) <!-- Placeholder -->
+
+**Analytics Dashboard**
+*Gain insights into project velocity and task distribution.*
+![Analytics Dashboard Placeholder](https://user-images.githubusercontent.com/12345/67890.png) <!-- Placeholder -->
+
+## Keywords
+
+`Kanban Board`, `Project Management`, `AI Assistant`, `Software Development`, `GitHub Issues`, `Task Management`, `Developer Tool`, `Next.js`, `React`, `TypeScript`, `AI-Powered`, `Workflow Automation`, `Jules`, `Command Center`, `Analytics`
