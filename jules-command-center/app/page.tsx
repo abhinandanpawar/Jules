@@ -21,7 +21,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { templates } from '../lib/prompt-templates';
-import { PlusIcon, SparklesIcon, ExclamationTriangleIcon, ChartBarIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, SparklesIcon, ExclamationTriangleIcon, ChartBarIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 
 
@@ -216,8 +216,17 @@ const NewTaskModal = ({ repos, onClose, onTaskCreated }: { repos: string[], onCl
     );
 };
 
+import { useSession } from 'next-auth/react';
+import Welcome from './components/Welcome';
+
 // --- MAIN KANBAN BOARD PAGE ---
 export default function Home() {
+  // Authentication and configuration state
+  const { data: session, status } = useSession();
+  const [isConfigured, setIsConfigured] = useState(false);
+  const [isStatusLoading, setIsStatusLoading] = useState(true);
+
+  // Kanban board state
   const [tasks, setTasks] = useState<Task[]>([]);
   const [configuredRepos, setConfiguredRepos] = useState<string[]>([]);
   const [taskColumnMapping, setTaskColumnMapping] = useState<{ [key: string]: ColumnId }>({});
@@ -228,6 +237,24 @@ export default function Home() {
   const [julesLogin, setJulesLogin] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRepo, setSelectedRepo] = useState('all');
+
+  // Check app status on load
+  useEffect(() => {
+    const checkStatus = async () => {
+      try {
+        const res = await fetch('/api/status');
+        if (!res.ok) throw new Error('Failed to fetch status');
+        const { isConfigured: configured } = await res.json();
+        setIsConfigured(configured);
+      } catch (err) {
+        // If status fails, assume not configured
+        setIsConfigured(false);
+      } finally {
+        setIsStatusLoading(false);
+      }
+    };
+    checkStatus();
+  }, []);
 
   const filteredTasks = useMemo(() => {
     return tasks
@@ -283,12 +310,14 @@ export default function Home() {
   }
 
   useEffect(() => {
-    fetchConfig();
-    fetchData(true);
-    fetchJulesUser();
-    const intervalId = setInterval(() => fetchData(), 15000); // Poll every 15 seconds
-    return () => clearInterval(intervalId);
-  }, []);
+    if (session) {
+      fetchConfig();
+      fetchData(true);
+      fetchJulesUser();
+      const intervalId = setInterval(() => fetchData(), 15000); // Poll every 15 seconds
+      return () => clearInterval(intervalId);
+    }
+  }, [session]);
 
   const handleTaskCreated = (newTask: Task) => {
     setTasks(prev => [newTask, ...prev]);
@@ -340,14 +369,24 @@ export default function Home() {
     }
   };
 
-  const renderContent = () => {
+  // --- RENDER LOGIC ---
+
+  if (isStatusLoading || status === 'loading') {
+    return <div className="text-muted-foreground text-center w-full min-h-screen flex items-center justify-center">Loading...</div>;
+  }
+
+  if (!session) {
+    return <Welcome isConfigured={isConfigured} />;
+  }
+
+  const renderBoardContent = () => {
     if (isLoading) return <div className="text-muted-foreground text-center w-full pt-20">Loading board...</div>;
     if (error) return (
         <div className="bg-destructive/10 text-destructive-foreground p-6 rounded-lg text-center w-full max-w-2xl mx-auto border border-destructive/30">
             <ExclamationTriangleIcon className="h-12 w-12 mx-auto text-destructive"/>
             <h3 className="mt-4 text-xl font-bold">An error occurred</h3>
             <p className="mt-2 font-mono text-sm bg-destructive/20 p-3 rounded-md">{error}</p>
-            <p className="mt-4 text-muted-foreground">Please check your `.env.local` file and ensure your GitHub PAT and other variables are correct.</p>
+            <p className="mt-4 text-muted-foreground">There was an issue fetching data from GitHub. Please check your connection or repository configuration.</p>
         </div>
     );
     return (
@@ -388,6 +427,10 @@ export default function Home() {
                 <ChartBarIcon className="h-5 w-5" />
                 Analytics
             </Link>
+             <Link href="/settings" className="bg-secondary text-secondary-foreground hover:bg-secondary/80 font-bold py-2 px-4 rounded-lg transition-colors flex items-center gap-2">
+                <Cog6ToothIcon className="h-5 w-5" />
+                Settings
+            </Link>
             <button onClick={() => setIsModalOpen(true)} className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold py-2 px-4 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50" disabled={isLoading || !!error}>
               <PlusIcon className="h-5 w-5"/>
               New Task
@@ -395,7 +438,7 @@ export default function Home() {
           </div>
         </header>
         <main className="flex p-4 space-x-4 h-screen pt-20">
-          {renderContent()}
+          {renderBoardContent()}
         </main>
       </div>
       <DragOverlay>{activeTask ? <TaskCard task={activeTask} /> : null}</DragOverlay>

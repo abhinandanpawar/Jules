@@ -1,10 +1,14 @@
 import { NextResponse } from 'next/server';
-
-const GITHUB_PAT = process.env.GITHUB_PAT;
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '../../auth/[...nextauth]/route';
 
 export async function POST(request: Request) {
-  if (!GITHUB_PAT) {
-    return NextResponse.json({ error: 'GitHub PAT is not configured.' }, { status: 500 });
+  const session = await getServerSession(authOptions);
+  // @ts-ignore
+  const accessToken = session?.accessToken;
+
+  if (!accessToken) {
+    return NextResponse.json({ error: 'Unauthorized. Please log in.' }, { status: 401 });
   }
 
   try {
@@ -19,7 +23,7 @@ export async function POST(request: Request) {
     const response = await fetch(url, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${GITHUB_PAT}`,
+        'Authorization': `Bearer ${accessToken}`,
         'Accept': 'application/vnd.github.v3+json',
         'Content-Type': 'application/json',
       },
