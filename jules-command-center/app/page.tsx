@@ -23,6 +23,8 @@ import { CSS } from '@dnd-kit/utilities';
 import { templates } from '../lib/prompt-templates';
 import { PlusIcon, SparklesIcon, ExclamationTriangleIcon, ChartBarIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import Welcome from './components/Welcome';
 
 
 // --- TYPE DEFINITIONS ---
@@ -215,9 +217,6 @@ const NewTaskModal = ({ repos, onClose, onTaskCreated }: { repos: string[], onCl
         </div>
     );
 };
-
-import { useSession } from 'next-auth/react';
-import Welcome from './components/Welcome';
 
 // --- MAIN KANBAN BOARD PAGE ---
 export default function Home() {
