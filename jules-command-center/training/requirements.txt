@@ -9,6 +9,8 @@ datasets
 transformers>=4.37.0
 accelerate
 tiktoken
+evaluate
+scikit-learn
 
 # Recommended for efficient training on modern hardware
 bitsandbytes

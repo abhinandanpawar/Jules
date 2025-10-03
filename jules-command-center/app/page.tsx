@@ -21,8 +21,10 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { templates } from '../lib/prompt-templates';
-import { PlusIcon, SparklesIcon, ExclamationTriangleIcon, ChartBarIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, SparklesIcon, ExclamationTriangleIcon, ChartBarIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import Welcome from './components/Welcome';
 
 
 // --- TYPE DEFINITIONS ---
@@ -80,10 +82,10 @@ const TaskCard = ({ task }: { task: Task }) => {
       style={style}
       {...attributes}
       {...listeners}
-      className="bg-gray-800/80 backdrop-blur-sm p-4 rounded-lg shadow-md border border-gray-700/50 hover:border-indigo-500/50 cursor-grab active:cursor-grabbing transition-all duration-200"
+      className="bg-card p-4 rounded-lg shadow-md border border-border hover:border-primary/50 cursor-grab active:cursor-grabbing transition-all duration-200"
     >
-      <p className="font-medium text-gray-200 leading-snug line-clamp-2">{task.title}</p>
-      <p className="text-sm text-gray-400 mt-2 truncate">
+      <p className="font-medium text-card-foreground leading-snug line-clamp-2">{task.title}</p>
+      <p className="text-sm text-muted-foreground mt-2 truncate">
         {task.repository.name} #{task.number}
       </p>
     </div>
@@ -94,16 +96,16 @@ const KanbanColumn = ({ column, tasks }: { column: Column; tasks: Task[] }) => {
   const { setNodeRef } = useSortable({ id: column.id, data: { type: 'Column' } });
 
   return (
-    <div ref={setNodeRef} className="flex-shrink-0 w-80 bg-gray-900/70 rounded-xl p-1 h-full">
+    <div ref={setNodeRef} className="flex-shrink-0 w-80 bg-background/50 rounded-xl p-1 h-full">
       <div className="p-3">
-        <h2 className="text-md font-semibold text-gray-300 tracking-wide uppercase">{column.title}</h2>
+        <h2 className="text-md font-semibold text-foreground tracking-wide uppercase">{column.title}</h2>
       </div>
       <SortableContext items={tasks.map(t => t.id.toString())} strategy={rectSortingStrategy}>
         <div className="space-y-3 p-3 overflow-y-auto h-[calc(100%-4rem)]">
           {tasks.length > 0 ? (
             tasks.map(task => <TaskCard key={task.id} task={task} />)
           ) : (
-            <div className="text-center text-gray-500 pt-8">No tasks</div>
+            <div className="text-center text-muted-foreground pt-8">No tasks</div>
           )}
         </div>
       </SortableContext>
@@ -171,19 +173,19 @@ const NewTaskModal = ({ repos, onClose, onTaskCreated }: { repos: string[], onCl
 
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 transition-opacity duration-300">
-            <div className="bg-gray-800 rounded-xl shadow-2xl p-8 w-full max-w-2xl border border-gray-700">
-                <h2 className="text-2xl font-bold mb-6 text-white">Create New Task</h2>
+            <div className="bg-card rounded-xl shadow-2xl p-8 w-full max-w-2xl border border-border">
+                <h2 className="text-2xl font-bold mb-6 text-foreground">Create New Task</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
-                            <label htmlFor="repo" className="block text-gray-400 mb-2 text-sm">Repository</label>
-                            <select id="repo" value={repo} onChange={e => setRepo(e.target.value)} className="w-full bg-gray-700/50 border border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors" required>
+                            <label htmlFor="repo" className="block text-muted-foreground mb-2 text-sm">Repository</label>
+                            <select id="repo" value={repo} onChange={e => setRepo(e.target.value)} className="w-full bg-input border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring transition-colors" required>
                                 {repos.map(r => <option key={r} value={r}>{r}</option>)}
                             </select>
                         </div>
                         <div>
-                            <label htmlFor="taskType" className="block text-gray-400 mb-2 text-sm">Task Type</label>
-                            <select id="taskType" value={taskType} onChange={e => setTaskType(e.target.value)} className="w-full bg-gray-700/50 border border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors">
+                            <label htmlFor="taskType" className="block text-muted-foreground mb-2 text-sm">Task Type</label>
+                            <select id="taskType" value={taskType} onChange={e => setTaskType(e.target.value)} className="w-full bg-input border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring transition-colors">
                                 {Object.entries(templates).map(([key, { name }]) => (
                                     <option key={key} value={key}>{name}</option>
                                 ))}
@@ -191,22 +193,22 @@ const NewTaskModal = ({ repos, onClose, onTaskCreated }: { repos: string[], onCl
                         </div>
                     </div>
                     <div className="mb-4">
-                        <label htmlFor="title" className="block text-gray-400 mb-2 text-sm">Title</label>
-                        <input type="text" id="title" value={title} onChange={e => setTitle(e.target.value)} className="w-full bg-gray-700/50 border border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors" required />
+                        <label htmlFor="title" className="block text-muted-foreground mb-2 text-sm">Title</label>
+                        <input type="text" id="title" value={title} onChange={e => setTitle(e.target.value)} className="w-full bg-input border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring transition-colors" required />
                     </div>
                     <div className="mb-2 flex justify-between items-center">
-                        <label htmlFor="body" className="block text-gray-400 text-sm">Description</label>
-                        <button type="button" onClick={handleSuggestPrompt} disabled={isSuggesting} className="flex items-center gap-2 text-sm bg-purple-600 hover:bg-purple-700 text-white font-bold py-1.5 px-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        <label htmlFor="body" className="block text-muted-foreground text-sm">Description</label>
+                        <button type="button" onClick={handleSuggestPrompt} disabled={isSuggesting} className="flex items-center gap-2 text-sm bg-secondary text-secondary-foreground hover:bg-secondary/80 font-bold py-1.5 px-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                             <SparklesIcon className="h-4 w-4"/>
                             {isSuggesting ? 'Improving...' : 'Improve with AI'}
                         </button>
                     </div>
                     <div className="mb-6">
-                        <textarea id="body" value={body} onChange={e => setBody(e.target.value)} rows={10} className="w-full bg-gray-700/50 border border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono text-sm transition-colors"></textarea>
+                        <textarea id="body" value={body} onChange={e => setBody(e.target.value)} rows={10} className="w-full bg-input border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring font-mono text-sm transition-colors"></textarea>
                     </div>
                     <div className="flex justify-end gap-4">
-                        <button type="button" onClick={onClose} className="bg-gray-600/50 hover:bg-gray-600/80 font-bold py-2 px-4 rounded-lg transition-colors">Cancel</button>
-                        <button type="submit" disabled={isSubmitting} className="bg-indigo-600 hover:bg-indigo-700 font-bold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        <button type="button" onClick={onClose} className="bg-secondary text-secondary-foreground hover:bg-secondary/80 font-bold py-2 px-4 rounded-lg transition-colors">Cancel</button>
+                        <button type="submit" disabled={isSubmitting} className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                             {isSubmitting ? 'Creating...' : 'Create Task'}
                         </button>
                     </div>
@@ -218,6 +220,12 @@ const NewTaskModal = ({ repos, onClose, onTaskCreated }: { repos: string[], onCl
 
 // --- MAIN KANBAN BOARD PAGE ---
 export default function Home() {
+  // Authentication and configuration state
+  const { data: session, status } = useSession();
+  const [isConfigured, setIsConfigured] = useState(false);
+  const [isStatusLoading, setIsStatusLoading] = useState(true);
+
+  // Kanban board state
   const [tasks, setTasks] = useState<Task[]>([]);
   const [configuredRepos, setConfiguredRepos] = useState<string[]>([]);
   const [taskColumnMapping, setTaskColumnMapping] = useState<{ [key: string]: ColumnId }>({});
@@ -228,6 +236,24 @@ export default function Home() {
   const [julesLogin, setJulesLogin] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRepo, setSelectedRepo] = useState('all');
+
+  // Check app status on load
+  useEffect(() => {
+    const checkStatus = async () => {
+      try {
+        const res = await fetch('/api/status');
+        if (!res.ok) throw new Error('Failed to fetch status');
+        const { isConfigured: configured } = await res.json();
+        setIsConfigured(configured);
+      } catch (err) {
+        // If status fails, assume not configured
+        setIsConfigured(false);
+      } finally {
+        setIsStatusLoading(false);
+      }
+    };
+    checkStatus();
+  }, []);
 
   const filteredTasks = useMemo(() => {
     return tasks
@@ -283,12 +309,14 @@ export default function Home() {
   }
 
   useEffect(() => {
-    fetchConfig();
-    fetchData(true);
-    fetchJulesUser();
-    const intervalId = setInterval(() => fetchData(), 15000); // Poll every 15 seconds
-    return () => clearInterval(intervalId);
-  }, []);
+    if (session) {
+      fetchConfig();
+      fetchData(true);
+      fetchJulesUser();
+      const intervalId = setInterval(() => fetchData(), 15000); // Poll every 15 seconds
+      return () => clearInterval(intervalId);
+    }
+  }, [session]);
 
   const handleTaskCreated = (newTask: Task) => {
     setTasks(prev => [newTask, ...prev]);
@@ -340,14 +368,24 @@ export default function Home() {
     }
   };
 
-  const renderContent = () => {
-    if (isLoading) return <div className="text-gray-400 text-center w-full pt-20">Loading board...</div>;
+  // --- RENDER LOGIC ---
+
+  if (isStatusLoading || status === 'loading') {
+    return <div className="text-muted-foreground text-center w-full min-h-screen flex items-center justify-center">Loading...</div>;
+  }
+
+  if (!session) {
+    return <Welcome isConfigured={isConfigured} />;
+  }
+
+  const renderBoardContent = () => {
+    if (isLoading) return <div className="text-muted-foreground text-center w-full pt-20">Loading board...</div>;
     if (error) return (
-        <div className="text-red-400 bg-red-900/30 p-6 rounded-lg text-center w-full max-w-2xl mx-auto border border-red-700">
-            <ExclamationTriangleIcon className="h-12 w-12 mx-auto text-red-500"/>
+        <div className="bg-destructive/10 text-destructive-foreground p-6 rounded-lg text-center w-full max-w-2xl mx-auto border border-destructive/30">
+            <ExclamationTriangleIcon className="h-12 w-12 mx-auto text-destructive"/>
             <h3 className="mt-4 text-xl font-bold">An error occurred</h3>
-            <p className="mt-2 font-mono text-sm bg-red-900/50 p-3 rounded-md">{error}</p>
-            <p className="mt-4 text-gray-300">Please check your `.env.local` file and ensure your GitHub PAT and other variables are correct.</p>
+            <p className="mt-2 font-mono text-sm bg-destructive/20 p-3 rounded-md">{error}</p>
+            <p className="mt-4 text-muted-foreground">There was an issue fetching data from GitHub. Please check your connection or repository configuration.</p>
         </div>
     );
     return (
@@ -362,20 +400,20 @@ export default function Home() {
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className="min-h-screen font-sans bg-grid-gray-700/[0.2]">
-        <header className="p-4 flex justify-between items-center gap-4 backdrop-blur-sm bg-gray-900/50 border-b border-gray-700/50 fixed top-0 left-0 right-0 z-10">
+        <header className="p-4 flex justify-between items-center gap-4 backdrop-blur-sm bg-background/80 border-b border-border fixed top-0 left-0 right-0 z-10">
           <div className="flex items-center gap-4">
-              <h1 className="text-xl font-bold text-white">Jules Command Center</h1>
+              <h1 className="text-xl font-bold text-foreground">Jules Command Center</h1>
               <input
                 type="text"
                 placeholder="Search tasks..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="bg-gray-700/50 border border-gray-600 rounded-md px-3 py-1.5 w-64 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+                className="bg-input border-border rounded-md px-3 py-1.5 w-64 text-sm focus:outline-none focus:ring-2 focus:ring-ring transition-colors"
               />
               <select
                 value={selectedRepo}
                 onChange={e => setSelectedRepo(e.target.value)}
-                className="bg-gray-700/50 border border-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+                className="bg-input border-border rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring transition-colors"
               >
                 <option value="all">All Repositories</option>
                 {configuredRepos.map(repo => (
@@ -384,18 +422,22 @@ export default function Home() {
               </select>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/analytics" className="flex items-center gap-2 bg-gray-600/50 hover:bg-gray-600/80 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+            <Link href="/analytics" className="bg-secondary text-secondary-foreground hover:bg-secondary/80 font-bold py-2 px-4 rounded-lg transition-colors flex items-center gap-2">
                 <ChartBarIcon className="h-5 w-5" />
                 Analytics
             </Link>
-            <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors disabled:opacity-50" disabled={isLoading || !!error}>
+             <Link href="/settings" className="bg-secondary text-secondary-foreground hover:bg-secondary/80 font-bold py-2 px-4 rounded-lg transition-colors flex items-center gap-2">
+                <Cog6ToothIcon className="h-5 w-5" />
+                Settings
+            </Link>
+            <button onClick={() => setIsModalOpen(true)} className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold py-2 px-4 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50" disabled={isLoading || !!error}>
               <PlusIcon className="h-5 w-5"/>
               New Task
             </button>
           </div>
         </header>
         <main className="flex p-4 space-x-4 h-screen pt-20">
-          {renderContent()}
+          {renderBoardContent()}
         </main>
       </div>
       <DragOverlay>{activeTask ? <TaskCard task={activeTask} /> : null}</DragOverlay>

@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '../auth/[...nextauth]/route';
 
 // Define a type for the GitHub Issue for better type-safety
 interface GitHubIssue {
@@ -24,25 +26,30 @@ interface GitHubIssue {
  * Fetches all open issues from the repositories specified in the GITHUB_REPOS environment variable.
  */
 export async function GET() {
-  const GITHUB_PAT = process.env.GITHUB_PAT;
+  const session = await getServerSession(authOptions);
+  // @ts-ignore
+  const accessToken = session?.accessToken;
   const GITHUB_REPOS = process.env.GITHUB_REPOS;
 
-  if (!GITHUB_PAT || !GITHUB_REPOS) {
+  if (!accessToken) {
+    return NextResponse.json({ error: 'Unauthorized. Please log in.' }, { status: 401 });
+  }
+
+  if (!GITHUB_REPOS) {
     return NextResponse.json(
-      { error: 'GitHub Personal Access Token (GITHUB_PAT) and repositories (GITHUB_REPOS) must be configured in your .env.local file.' },
-      { status: 400 } // Using 400 for bad request/missing configuration
+      { error: 'Repository list (GITHUB_REPOS) is not configured in your .env.local file.' },
+      { status: 400 }
     );
   }
 
   const repoList = GITHUB_REPOS.split(',').map(repo => repo.trim());
-  const allIssues: GitHubIssue[] = [];
 
   try {
     const fetchPromises = repoList.map(async (repo) => {
       const url = `https://api.github.com/repos/${repo}/issues?state=open`;
       const response = await fetch(url, {
         headers: {
-          Authorization: `Bearer ${GITHUB_PAT}`,
+          Authorization: `Bearer ${accessToken}`,
           'Accept': 'application/vnd.github.v3+json',
         },
       });
@@ -52,14 +59,12 @@ export async function GET() {
       }
 
       const issues: GitHubIssue[] = await response.json();
-      // Add the full repo name to each issue for frontend use, which is more robust.
       return issues.map(issue => ({ ...issue, repository: { name: repo } }));
     });
 
     const nestedIssues = await Promise.all(fetchPromises);
-    const allIssues = nestedIssues.flat(); // Flatten the array of arrays into a single list
+    const allIssues = nestedIssues.flat();
 
-    // Sort issues by creation date, newest first
     allIssues.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
     return NextResponse.json(allIssues);
@@ -76,13 +81,12 @@ export async function GET() {
  * Expects a body with { title: string, repo: string, body?: string }
  */
 export async function POST(request: Request) {
-  const GITHUB_PAT = process.env.GITHUB_PAT;
+  const session = await getServerSession(authOptions);
+  // @ts-ignore
+  const accessToken = session?.accessToken;
 
-  if (!GITHUB_PAT) {
-    return NextResponse.json(
-      { error: 'GitHub Personal Access Token (GITHUB_PAT) must be configured.' },
-      { status: 400 }
-    );
+  if (!accessToken) {
+    return NextResponse.json({ error: 'Unauthorized. Please log in.' }, { status: 401 });
   }
 
   try {
@@ -96,13 +100,13 @@ export async function POST(request: Request) {
     const response = await fetch(url, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${GITHUB_PAT}`,
+        Authorization: `Bearer ${accessToken}`,
         'Accept': 'application/vnd.github.v3+json',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         title,
-        body: body || '', // Body is optional
+        body: body || '',
       }),
     });
 
@@ -113,7 +117,7 @@ export async function POST(request: Request) {
     }
 
     const newIssue = await response.json();
-    return NextResponse.json(newIssue, { status: 201 }); // 201 Created
+    return NextResponse.json(newIssue, { status: 201 });
 
   } catch (error: any) {
     console.error('API Error:', error.message);
