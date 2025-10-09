@@ -342,6 +342,9 @@ export default function Home() {
     const overColumnId = over.data.current?.type === 'Column' ? overId : taskColumnMapping[overId];
     if (!overColumnId) return;
 
+    const originalColumnId = taskColumnMapping[activeId];
+    if (originalColumnId === overColumnId) return;
+
     // Optimistically update the UI
     setTaskColumnMapping(prev => ({ ...prev, [activeId]: overColumnId }));
     toast.success(`Moved to ${initialColumns.find(c => c.id === overColumnId)?.title}`);
@@ -363,7 +366,7 @@ export default function Home() {
       } catch (err) {
         toast.error('Could not assign task.');
         // Revert the optimistic update on failure
-        setTaskColumnMapping(prev => ({ ...prev, [activeId]: taskColumnMapping[activeId] }));
+        setTaskColumnMapping(prev => ({ ...prev, [activeId]: originalColumnId }));
       }
     }
   };

@@ -20,7 +20,7 @@ export default function Welcome({ isConfigured }: WelcomeProps) {
             onClick={() => signIn('github')}
             className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold py-3 px-6 rounded-lg text-lg transition-colors"
           >
-            Connect to GitHub
+            Sign in with GitHub
           </button>
         ) : (
           <div className="bg-destructive/10 text-destructive-foreground p-6 rounded-lg text-center w-full border border-destructive/30">

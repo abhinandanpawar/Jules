@@ -21,46 +21,63 @@ Follow these instructions to set up and run the Jules Command Center locally.
 
 First, clone this repository to your local machine if you haven't already.
 
-### Step 2: Create Your Environment Configuration
+### Step 2: Configure Your GitHub OAuth App
 
-The application requires a GitHub Personal Access Token (PAT) to securely access your repository data.
+The application uses GitHub OAuth for authentication. You'll need to create a GitHub OAuth App to get the required credentials.
 
-1.  **Generate a GitHub Personal Access Token:**
-    *   Go to your GitHub **[Developer settings](https://github.com/settings/tokens?type=beta)**.
-    *   Click **"Generate new token"** (select the "classic" token type if prompted).
-    *   Give your token a descriptive name (e.g., "JulesCommandCenter").
-    *   Set an expiration date for the token.
-    *   Under **"Scopes"**, select the entire **`repo`** scope. This is required to read repository data and create issues.
-    *   Click **"Generate token"** and **copy the token immediately**. You will not be able to see it again.
+1.  **Navigate to GitHub Developer Settings:**
+    *   Go to your GitHub **Settings** > **Developer settings**.
+    *   Click on **"OAuth Apps"** in the left sidebar, then click the **"New OAuth App"** button.
 
-2.  **Create the `.env.local` file:**
+2.  **Fill in the Application Details:**
+    *   **Application name:** `Jules Command Center (Local)`
+    *   **Homepage URL:** `http://localhost:3000`
+    *   **Authorization callback URL:** `http://localhost:3000/api/auth/callback/github`
+
+3.  **Generate a Client Secret:**
+    *   Click the **"Register application"** button.
+    *   On the next page, you will see your **Client ID**.
+    *   Click the **"Generate a new client secret"** button. Copy the secret immediately—you won't be able to see it again.
+
+### Step 3: Create Your Environment Configuration
+
+1.  **Create the `.env.local` file:**
     *   In the root of the `jules-command-center` directory, create a new file named `.env.local`.
     *   Copy the following content into the file:
 
     ```env
-    # The Personal Access Token (PAT) you just generated from GitHub.
-    GITHUB_PAT="your_github_personal_access_token_here"
+    # --- GitHub OAuth App Credentials ---
+    # Copy the Client ID from your GitHub OAuth App page.
+    GITHUB_CLIENT_ID="your_client_id_here"
+    # Copy the Client Secret you generated.
+    GITHUB_CLIENT_SECRET="your_client_secret_here"
 
+    # --- NextAuth Configuration ---
+    # A secret for encrypting the session JWT. Generate one here: https://generate-secret.vercel.app/32
+    NEXTAUTH_SECRET="your_nextauth_secret_here"
+
+    # --- Application Settings ---
     # A comma-separated list of the repositories you want to display.
     # Example: "your-username/repo-one,your-username/repo-two"
     GITHUB_REPOS="owner/repo1,owner/repo2"
 
-    # --- AI Feature Configuration ---
+    # --- AI Feature Configuration (Optional) ---
     # The URL of the TinyLlama inference API endpoint.
     AI_API_URL="your_inference_api_url_here"
-
     # The API key for the inference service, if required.
     AI_API_KEY="your_inference_api_key_here"
 
+    # --- Webhook Configuration (Optional) ---
     # A secret for verifying GitHub webhook payloads.
     GITHUB_WEBHOOK_SECRET="your_secret_here"
     ```
 
-3.  **Update the variables:**
-    *   Replace `"your_github_personal_access_token_here"` with the PAT you copied.
-    *   Replace `"owner/repo1,owner/repo2"` with the list of your GitHub repositories that you want to manage.
+2.  **Update the variables:**
+    *   Replace `"your_client_id_here"` and `"your_client_secret_here"` with the credentials from your GitHub OAuth App.
+    *   Generate a `NEXTAUTH_SECRET` and paste it in place of `"your_nextauth_secret_here"`.
+    *   Replace `"owner/repo1,owner/repo2"` with the list of your GitHub repositories.
 
-### Step 3: Set Up the GitHub Webhook
+### Step 4: Set Up the GitHub Webhook (Optional)
 
 For the "Automated Status Updates" feature to work, you need to configure your GitHub repositories to send webhook events to the application.
 
