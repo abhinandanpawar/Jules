@@ -21,43 +21,63 @@ Follow these instructions to set up and run the Jules Command Center locally.
 
 First, clone this repository to your local machine if you haven't already.
 
-### Step 2: Create Your Environment Configuration
+### Step 2: Configure Your GitHub OAuth App
 
-The application requires a GitHub Personal Access Token (PAT) to securely access your repository data.
+The application uses GitHub OAuth for authentication. You'll need to create a GitHub OAuth App to get the required credentials.
 
-1.  **Generate a GitHub Personal Access Token:**
-    *   Go to your GitHub **[Developer settings](https://github.com/settings/tokens?type=beta)**.
-    *   Click **"Generate new token"** (select the "classic" token type if prompted).
-    *   Give your token a descriptive name (e.g., "JulesCommandCenter").
-    *   Set an expiration date for the token.
-    *   Under **"Scopes"**, select the entire **`repo`** scope. This is required to read repository data and create issues.
-    *   Click **"Generate token"** and **copy the token immediately**. You will not be able to see it again.
+1.  **Navigate to GitHub Developer Settings:**
+    *   Go to your GitHub **Settings** > **Developer settings**.
+    *   Click on **"OAuth Apps"** in the left sidebar, then click the **"New OAuth App"** button.
 
-2.  **Create the `.env.local` file:**
+2.  **Fill in the Application Details:**
+    *   **Application name:** `Jules Command Center (Local)`
+    *   **Homepage URL:** `http://localhost:3000`
+    *   **Authorization callback URL:** `http://localhost:3000/api/auth/callback/github`
+
+3.  **Generate a Client Secret:**
+    *   Click the **"Register application"** button.
+    *   On the next page, you will see your **Client ID**.
+    *   Click the **"Generate a new client secret"** button. Copy the secret immediately—you won't be able to see it again.
+
+### Step 3: Create Your Environment Configuration
+
+1.  **Create the `.env.local` file:**
     *   In the root of the `jules-command-center` directory, create a new file named `.env.local`.
     *   Copy the following content into the file:
 
     ```env
-    # The Personal Access Token (PAT) you just generated from GitHub.
-    GITHUB_PAT="your_github_personal_access_token_here"
+    # --- GitHub OAuth App Credentials ---
+    # Copy the Client ID from your GitHub OAuth App page.
+    GITHUB_CLIENT_ID="your_client_id_here"
+    # Copy the Client Secret you generated.
+    GITHUB_CLIENT_SECRET="your_client_secret_here"
 
+    # --- NextAuth Configuration ---
+    # A secret for encrypting the session JWT. Generate one here: https://generate-secret.vercel.app/32
+    NEXTAUTH_SECRET="your_nextauth_secret_here"
+
+    # --- Application Settings ---
     # A comma-separated list of the repositories you want to display.
     # Example: "your-username/repo-one,your-username/repo-two"
     GITHUB_REPOS="owner/repo1,owner/repo2"
 
-    # --- AI Feature Configuration ---
+    # --- AI Feature Configuration (Optional) ---
     # The URL of the TinyLlama inference API endpoint.
     AI_API_URL="your_inference_api_url_here"
-
     # The API key for the inference service, if required.
     AI_API_KEY="your_inference_api_key_here"
+
+    # --- Webhook Configuration (Optional) ---
+    # A secret for verifying GitHub webhook payloads.
+    GITHUB_WEBHOOK_SECRET="your_secret_here"
     ```
 
-3.  **Update the variables:**
-    *   Replace `"your_github_personal_access_token_here"` with the PAT you copied.
-    *   Replace `"owner/repo1,owner/repo2"` with the list of your GitHub repositories that you want to manage.
+2.  **Update the variables:**
+    *   Replace `"your_client_id_here"` and `"your_client_secret_here"` with the credentials from your GitHub OAuth App.
+    *   Generate a `NEXTAUTH_SECRET` and paste it in place of `"your_nextauth_secret_here"`.
+    *   Replace `"owner/repo1,owner/repo2"` with the list of your GitHub repositories.
 
-### Step 3: Set Up the GitHub Webhook
+### Step 4: Set Up the GitHub Webhook (Optional)
 
 For the "Automated Status Updates" feature to work, you need to configure your GitHub repositories to send webhook events to the application.
 
@@ -70,7 +90,7 @@ For the "Automated Status Updates" feature to work, you need to configure your G
     *   Click **"Add webhook"**.
     *   **Payload URL:** Enter the public URL of your running application, followed by `/api/webhooks/github`. Example: `https://<unique-id>.ngrok-free.app/api/webhooks/github`.
     *   **Content type:** Select `application/json`.
-    *   **Secret:** It is highly recommended to set a webhook secret for security. Add this secret to your `.env.local` file as `GITHUB_WEBHOOK_SECRET="your_secret_here"`. (The current implementation does not yet verify this secret, but it is a best practice to set it up).
+    *   **Secret:** You must set a webhook secret for security. Generate a secure, random string and add it to your `.env.local` file as `GITHUB_WEBHOOK_SECRET="your_secret_here"`. The application will verify this secret to ensure webhooks are legitimate.
     *   **Which events would you like to trigger this webhook?** Select "Let me select individual events." and then choose **"Issue comments"** and **"Pull request review comments"**.
     *   Make sure **"Active"** is checked, and click **"Add webhook"**.
 
@@ -91,6 +111,10 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result. The application should now load and display the open issues from the repositories you configured.
 
+### AI Model Training
+
+This project includes scripts to fine-tune the AI models that power features like smart prompting and automated status updates. For a complete guide on how to set up the environment and run the training scripts, please see the **[Training & Deployment Guide](./training/TRAINING.md)**.
+
 ## How to Use
 
 - **View Tasks:** All open issues from your configured repositories will appear in the "Backlog" column by default.
@@ -100,3 +124,19 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
     2.  Choose a **Task Type** (e.g., 'Bug Fix', 'New Feature'). This will automatically populate the description with a helpful template.
     3.  Fill in the **Title** and complete the templated **Description**.
     4.  Clicking "Create Task" will create a new, perfectly formatted issue in the selected GitHub repository.
+
+## Screenshots
+
+> **Note:** Due to persistent technical issues in the development environment, we are currently unable to generate updated screenshots. This section will be updated with images of the application's features as soon as the environment is stabilized.
+
+**Kanban Board**
+*A unified view of all tasks across your repositories.*
+![Kanban Board Placeholder](https://user-images.githubusercontent.com/12345/67890.png) <!-- Placeholder -->
+
+**Analytics Dashboard**
+*Gain insights into project velocity and task distribution.*
+![Analytics Dashboard Placeholder](https://user-images.githubusercontent.com/12345/67890.png) <!-- Placeholder -->
+
+## Keywords
+
+`Kanban Board`, `Project Management`, `AI Assistant`, `Software Development`, `GitHub Issues`, `Task Management`, `Developer Tool`, `Next.js`, `React`, `TypeScript`, `AI-Powered`, `Workflow Automation`, `Jules`, `Command Center`, `Analytics`

@@ -53,14 +53,31 @@ Now, install all the necessary Python libraries.
 
 ## Step 4: Run the Fine-Tuning Script
 
-You are now ready to start training your custom models.
+You are now ready to start training your custom models. The script must be run separately for each of the two models: `smart_prompting` and `comment_classification`.
 
-1.  **Run the Script:** In a new Colab code cell, run the main training script. This process will take a significant amount of time, potentially several hours, as it trains two separate models.
+1.  **Run the Training for Each Model:** In a Colab code cell, run the following commands. Note that each command may take a significant amount of time.
+
+    To train the **Smart Prompting** model:
     ```python
-    !python fine_tune.py
+    !python fine_tune.py smart_prompting
     ```
-2.  **Monitor the Output:** You will see progress bars and logging output from the `transformers` library as the models are trained.
-3.  **Verify the Output:** Once the script is finished, you will have a new directory named `fine-tuned-models` inside your `training` directory. This will contain two subdirectories: `smart-prompting-model` and `comment-classification-model`. These are your custom-trained models!
+
+    To train the **Comment Classification** model:
+    ```python
+    !python fine_tune.py comment_classification
+    ```
+
+2.  **(Optional) Training on a Smaller Dataset:**
+    For quick testing or to avoid timeouts in resource-constrained environments, you can train on a smaller subset of the data using the `--num-examples` flag.
+
+    For example, to train the smart prompting model on only 50 examples:
+    ```python
+    !python fine_tune.py smart_prompting --num-examples 50
+    ```
+
+3.  **Monitor the Output:** You will see progress bars and logging output from the `transformers` library as the models are trained.
+
+4.  **Verify the Output:** Once the scripts are finished, you will have a new directory named `fine-tuned-models` inside your `training` directory. This will contain two subdirectories: `smart-prompting-model` and `comment-classification-model`. These are your custom-trained models!
 
 ---
 
